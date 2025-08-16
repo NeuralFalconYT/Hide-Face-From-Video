@@ -219,7 +219,8 @@ def add_mask(upload_video,
         if not ret:
             print("✅ Video processing complete.")
             break
-        frame = cv2.flip(frame, 1)
+        # Flip frame
+        # frame = cv2.flip(frame, 1)
         raw_frame=frame.copy()
         frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=frame_rgb)
