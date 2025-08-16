@@ -23,6 +23,10 @@ Play on HuggingFace:
 https://github.com/user-attachments/assets/0db41dc1-020c-4395-b52c-e23d7cb2f7e4
 
 
+<!-- Video Src: https://www.pexels.com/video/woman-walking-while-holding-on-the-fence-10648321/ -->
+https://github.com/user-attachments/assets/ea5d76f2-7160-41a1-abb3-a63f7d207225
+
+
 ---
 
 ## ⚡ Installation
@@ -66,11 +70,16 @@ python obs.py
 
 1. Create a **transparent PNG mask** (e.g., `mask.png`).
 2. Upload it to [MakeSense.ai](https://www.makesense.ai/).
-3. Mark **36 facial landmarks**.
+3. Mark **36 facial landmarks**. [use this "Mediapipe Face 3D Landmarks" image as Reference ]
 4. Export the CSV file.
 5. Remove the last **two columns** from the CSV.
 6. Move `mask.png` and the CSV into the **`assets`** folder.
 7. Update `video_process.py` with the new file paths.
+
+
+
+https://github.com/user-attachments/assets/68b2bee9-ce98-4cdc-80e5-5b50d42bd0f3
+
 
 ---
 
