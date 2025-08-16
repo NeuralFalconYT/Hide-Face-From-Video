@@ -39,7 +39,6 @@ import click
 def main(debug, share):
 # def main(debug=True, share=False):
     demo=ui()
-    demo.launch()
     demo.queue().launch(debug=debug, share=share)
 if __name__ == "__main__":
     main()    
