@@ -6,6 +6,10 @@ Skip boring traditional blurs—this tool lets you hide your face using **fun, c
 Run on Google Colab:
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/NeuralFalconYT/Hide-Face-From-Video/blob/main/Hide_Face.ipynb)
 
+Play on HuggingFace:
+[![HuggingFace Space Demo](https://img.shields.io/badge/🤗-Space%20demo-yellow)](https://huggingface.co/spaces/NeuralFalcon/Hide-face-in-videos-using-Squid-Game-masks)
+
+
 ---
 
 ## 📸 Demo
