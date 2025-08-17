@@ -12,7 +12,6 @@ def draw_landmarks_on_image(rgb_image, detection_result):
     face_landmarks_list = detection_result.face_landmarks
     annotated_image = np.copy(rgb_image)
 
-    # Loop through the detected faces to visualize.
     for idx in range(len(face_landmarks_list)):
         face_landmarks = face_landmarks_list[idx]
         face_landmarks_proto = landmark_pb2.NormalizedLandmarkList()
@@ -60,10 +59,10 @@ def reset_landmarker():
     global landmarker
     try:
         if landmarker:
-            landmarker.close()  # release previous resources
+            landmarker.close()  
     except:
         pass
-    landmarker = mediapipe_config()  # create a fresh landmarker
+    landmarker = mediapipe_config()  
 
 
 def face_point(results, frame):
@@ -75,7 +74,6 @@ def face_point(results, frame):
             for id, lm in enumerate(face_landmarks):
                 x, y = int(lm.x * iw), int(lm.y * ih)
                 face.append([id, x, y])
-            ## FIX: Indentation was wrong. It should be inside the loop to capture all faces.
             faces.append(face)
     return faces
 
@@ -106,9 +104,9 @@ def replace_audio_with_ffmpeg(video_path, audio_path):
 
     gpu = False
     if gpu:
-        print("✅ CUDA GPU is available. Running on GPU.")
+        print("CUDA GPU is available. Running on GPU.")
     else:
-        print("❌ No CUDA GPU found. Falling back to CPU.")
+        print("No CUDA GPU found. Falling back to CPU.")
 
     video_codec = "h264_nvenc" if gpu else "libx264"
     cmd = [
@@ -137,12 +135,10 @@ def add_audio(input_video, mask_video, save_video="final.mp4"):
         os.makedirs("./temp", exist_ok=True)
         audio_file = os.path.abspath("./temp/temp_audio.wav")
 
-        # Normalize all paths for ffmpeg (Windows safe)
         input_video = os.path.normpath(os.path.abspath(input_video))
         mask_video  = os.path.normpath(os.path.abspath(mask_video))
         save_video  = os.path.normpath(os.path.abspath(save_video))
 
-        # Step 1: Extract WAV audio
         extract_cmd = [
             "ffmpeg", "-y", "-i", input_video, "-vn",
             "-acodec", "pcm_s16le", "-ar", "44100", "-ac", "2",
@@ -151,11 +147,9 @@ def add_audio(input_video, mask_video, save_video="final.mp4"):
         subprocess.run(extract_cmd, check=True,stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL)
 
-        # Validate
         if not os.path.exists(audio_file) or os.path.getsize(audio_file) == 0:
             raise Exception("No audio track extracted")
 
-        # Step 2: Merge WAV + video
         gpu=False
         video_codec = "h264_nvenc" if gpu else "libx264"
         merge_cmd = [
@@ -179,15 +173,26 @@ def add_audio(input_video, mask_video, save_video="final.mp4"):
         return True
 
     except Exception as e:
-        print("⚠️ Audio merge failed:", e)
+        print("Audio merge failed:", e)
         try:
-            shutil.copy(mask_video, save_video)  # fallback
+            shutil.copy(mask_video, save_video)  
         except Exception as e2:
-            print("❌ Fallback copy failed:", e2)
+            print("Fallback copy failed:", e2)
             return False
         return False
 
 
+def is_camera_source(source):
+    if isinstance(source, int):
+        return True
+    if isinstance(source, str) and not os.path.isfile(source):
+        
+        try:
+            idx = int(source)
+            return True
+        except ValueError:
+            return False
+    return False
 
 def add_mask(upload_video,
              mask_name="Blue Mask",mask_up=10, mask_down=10,display=False):
@@ -196,11 +201,11 @@ def add_mask(upload_video,
     os.makedirs("./temp", exist_ok=True)
     cap = cv2.VideoCapture(upload_video)
     if not cap.isOpened():
-        print("❌ Cannot access video file")
+        print("Cannot access video file")
         exit()
     input_fps = int(cap.get(cv2.CAP_PROP_FPS))
-    if input_fps <= 0 or input_fps > 120:  # sanity check
-        input_fps = 25  # default fallback
+    if input_fps <= 0 or input_fps > 120: 
+        input_fps = 25  
 
     OUTPUT_WIDTH = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     OUTPUT_HEIGHT = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
@@ -209,7 +214,6 @@ def add_mask(upload_video,
     out = cv2.VideoWriter(output_video, fourcc, input_fps, (OUTPUT_WIDTH, OUTPUT_HEIGHT))
 
 
-    # For more stable FPS calculation
     frame_count = 0
     fps = 0
     fps_start_time = time.time()
@@ -239,17 +243,14 @@ def add_mask(upload_video,
             masked_frame = frame
         out.write(masked_frame)
         if display:
-            # FPS calculation
             frame_count += 1
             if time.time() - fps_start_time >= 1.0:
                 fps = frame_count / (time.time() - fps_start_time)
                 frame_count = 0
                 fps_start_time = time.time()
 
-            # Show FPS on both screens before letterboxing
             fps_text = f"FPS: {fps:.2f}"
             
-            # Resize and combine frames for display and writing
             SCREEN_W, SCREEN_H =  480, 270 
             cv2.putText(raw_frame, fps_text, (30, 60), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 255, 0), 2)
             # cv2.putText(middle, fps_text, (30, 40), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
@@ -261,7 +262,6 @@ def add_mask(upload_video,
 
             combined_image = np.hstack((left,middle, right))
 
-            ## FIX: Write the final 'combined_image' to the output file.
 
 
             cv2.imshow("Background Preview", combined_image)
@@ -273,14 +273,18 @@ def add_mask(upload_video,
     cap.release()
     out.release()
     cv2.destroyAllWindows()
-    random_str = str(uuid.uuid4())[:5]  # Generate a random string
+    random_str = str(uuid.uuid4())[:5]  
+    if is_camera_source(upload_video):
+        print("Using Camera Index:", upload_video)
+        return None, None
+
     save_video_path="./temp/"+os.path.basename(upload_video).split('.')[0] + "_" +mask_name.replace(" ","_") + "_" + random_str+".mp4"
     sucess=add_audio(upload_video,output_video, save_video_path)
     if sucess:
-        print(f"✅ Masked video saved to {save_video_path}")
+        print(f"Masked video saved to {save_video_path}")
         return save_video_path,save_video_path
     else:
-        print("❌ Failed to save masked video.")
+        print("Failed to save masked video.")
         return output_video,output_video
 
 # mask_names=["Front Man Mask", "Guards Mask", "Red Mask", "Blue Mask"]
